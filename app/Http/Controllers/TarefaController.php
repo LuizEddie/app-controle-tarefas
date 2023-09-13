@@ -32,13 +32,16 @@ class TarefaController extends Controller
         // }
 
         // if(Auth::check()){
-        $id = Auth::user()->id;
-        $name = Auth::user()->name;
-        $email = Auth::user()->email;
-        return "ID: $id | Nome: $name | Email: $email";
-        // }else{
+        // $id = Auth::user()->id;
+        // $name = Auth::user()->name;
+        // $email = Auth::user()->email;
+        // return "ID: $id | Nome: $name | Email: $email";
+        // // }else{
         // return 'Você não está logado';
         // }
+        $user_id = auth()->user()->id;
+        $tarefas = Tarefa::where("user_id", $user_id)->paginate(10);
+        return view("tarefa.index", ['tarefas'=>$tarefas]);
     }
 
     /**
@@ -59,7 +62,10 @@ class TarefaController extends Controller
      */
     public function store(Request $request)
     {
-        $tarefa = Tarefa::create($request->all());
+        $dados = $request->all('tarefa', 'data_limite_conclusao');
+        $dados['user_id'] = auth()->user()->id;
+
+        $tarefa = Tarefa::create($dados);
         $destinatario = auth()->user()->email;
         Mail::to($destinatario)->send(new NovaTarefaMail($tarefa));
         return redirect()->route("tarefa.show", ['tarefa'=>$tarefa->id]);
