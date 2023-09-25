@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\TarefasExport;
 use App\Mail\NovaTarefaMail;
 use App\Models\Tarefa;
+use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -144,5 +145,13 @@ class TarefaController extends Controller
         }
         return redirect()->route("tarefa.index");  
 
+    }
+
+    public function exportar(){
+        $pdf2 = PDF::loadView('tarefa.pdf', ['tarefas'=> auth()->user()->tarefas()->get()]);
+
+        $pdf2->setPaper('a4', 'landscape');
+        // return $pdf2->download('lista_de_tarefas.pdf');
+        return $pdf2->stream('lista_de_tarefas.pdf');
     }
 }
